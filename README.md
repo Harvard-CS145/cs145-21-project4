@@ -49,10 +49,6 @@ Overall, this project has the following components:
 
 We provide scaffolding code in `sender_reciver`. 
 
-* Use `vagrant up` to boot the VM.
-* Use `vagrant ssh` to log into the VM.
-* Use `vagrant suspend` to save the state of the VM and stop it.
-* Use `vagrant halt` to gracefully shutdown the VM operating system and power down the VM.
 * Use `sudo pip install scapy` in the VM to install `scapy` package required by this project.
 
 <a name="part1"></a>
@@ -138,7 +134,7 @@ The command line parameters passed to these new `sender` and `receiver` are the 
 <a name="tips"></a>
 ## Impotant Notes
 
-* **Please closely follow updates on Piazza**. All further clarifications will be posted on Piazza via pinned Instructor Notes. We recommend you **follow** these notes to receive updates in time.
+* **Please closely follow updates on Ed**. All further clarifications will be posted on Ed via pinned posts. We recommend you **follow** these posts to receive updates in time.
 * You **MUST NOT** use TCP sockets.
 * We provide a proxy-based testing script to verify the correctness of your solution; check [here](./test_scripts/README.md) for details. 
 
