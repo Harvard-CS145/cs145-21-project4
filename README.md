@@ -14,6 +14,8 @@ There are a variety of ways to ensure a message is reliably delivered from a sen
 
 **You will do this project in the same VM as previous projects.**
 
+### UDP sockets
+This project is built on top of UDP. You **MUST NOT** use TCP sockets. For background, you can check out [UDP - Client And Server Example Programs In Python](https://pythontic.com/modules/socket/udp-client-server-example). Here's the high-level workflow: At the receiver, you can create a socket and bind it to a specific port. The sender can then create a socket and send traffic directly to the receiver based on its IP and port. (Note, this is the difference with TCP: the sender doesn't need to run `connect` to establish a connection.) Both the sender and the receiver can use `sendto` and `recvfrom` to communicate with each other. 
 
 ### RTP Specification
 RTP sends data in the format of a header, followed by a chunk of data.
@@ -44,7 +46,6 @@ Overall, this project has the following components:
 * [Part 1](#part1): Implement `sender`
 * [Part 2](#part2): Implement `receiver`
 * [Part 3](#part3): Optimizations
-* [Important notes](#tips)
 * [Submission Instructions](#submission-instr)
 
 We provide scaffolding code in `sender_reciver`. 
@@ -60,7 +61,7 @@ You will implement reliable transport using a sliding window mechanism. The size
 
 After transferring the entire message, you should send an `END` message to mark the end of connection.
 
-`sender` must ensure reliable data transfer under the following network conditions:
+`sender` must ensure reliable data transfer under the following four types of network errors:
 
 * Loss of arbitrary levels;
 * Re­ordering of ACK messages;
@@ -105,6 +106,8 @@ Put the programs written in parts 1 and 2 of this project into a folder called `
 * `Window Size`: Maximum number of outstanding packets.
 * `Message`: The received message received.
 
+NOTE: Your code should pass the testing below before the optimizations
+
 <a name="part3"></a>
 ## Part 3: Optimizations
 
@@ -131,12 +134,31 @@ For a more concrete example, here is how your improved `sender` and `receiver` s
 
 The command line parameters passed to these new `sender` and `receiver` are the same as the previous two sections.
 
-<a name="tips"></a>
-## Impotant Notes
+NOTE: Your code with optimizations in Part 3 should still pass the testing below. We will also manually check your code for your optimization implementation.
 
-* **Please closely follow updates on Ed**. All further clarifications will be posted on Ed via pinned posts. We recommend you **follow** these posts to receive updates in time.
-* You **MUST NOT** use TCP sockets.
-* We provide a proxy-based testing script to verify the correctness of your solution; check [here](./test_scripts/README.md) for details. 
+## Testing Your Solutions
+
+We provide a proxy-based testing script to help verify the correctness of your solution. 
+The testing script initiates connections with your receiver and sender separately, and forward packets with random delay, reordering, drops, or modifications. 
+
+Before the test, you should put these files to the same folder:
+    Solution files: receiver.py, send.py, util.py
+    Test files: proxy.py, test_message.txt, compare.sh
+
+Following the fours steps to test: 
+1. start the receiver: `python receiver.py [port_recv] [window_size] > [output_file]`
+    * Eg, `python receiver.py 40000 128 > output.txt`. 
+    * Receiver listens on port 40000.
+2. start the proxy: `python proxy.py localhost [port_send] localhost [port_recv] [error_type]`
+    * Eg, `python proxy.py localhost 50000 localhost 40000 0123`. 
+    * Proxy listens on port 50000 (waiting for connection from sender); proxy connects to port 40000; we choose all four types of errors. 
+3. start the sender: `python sender.py localhost [port_send] [window_size] < test_message.txt`
+    * Eg, `python sender.py localhost 50000 128 < test_message.txt`. 
+    * Sender connects to port 50000 (where proxy is listening on -- here completes the packet forwarding). 
+4. compare result: `bash compare.sh [output_file] test_message.txt`
+    * Eg, `bash compare.sh output.txt test_message.txt`. 
+    * You should delete the old `output.txt` before testing your new solution. 
+    * If you see *SUCCESS: Message received matches message sent!* printed, then you solution passes the test!
 
 <a name="submission-instr"></a>
 ## Submission and Grading
@@ -151,10 +173,11 @@ Please make sure all files are in the `project4/` folder of your master branch.
 
 ### Grading 
 
-The total grades is 100:
+Your code in both Part 2 (RTP-base) and Part 3 (RTP-opt) should pass our testing scripts with all four types of network errors. The total grades is 100:
 
-- 70: RTP-base passes test (with all four types of packet errors)
-- 30: RTP-opt passes test (with all four types of packet errors)
+- 60: RTP-base passes test 
+- 30: RTP-opt passes test 
+- 10: RTP-opt code function check
 - Deductions based on late policies
 
 
